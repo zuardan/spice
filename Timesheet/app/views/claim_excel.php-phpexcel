@@ -1,0 +1,132 @@
+<?
+require_once $_SERVER["DOCUMENT_ROOT"] . "/excel/Classes/PHPExcel.php";
+
+$objPHPExcel = new PHPExcel();
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="your_name.xls"');
+header('Cache-Control: max-age=0');
+
+// Add some data
+//echo date('H:i:s') , " Add some data" , EOL;
+$outline = array(
+  'borders' => array(
+    'outline' => array(
+      'style' => PHPExcel_Style_Border::BORDER_THIN
+    )
+  )
+);
+
+$aligncenter = array(
+        'alignment' => array(
+            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+        )
+    );
+	
+$allborders = array(
+  'borders' => array(
+    'allborders' => array(
+      'style' => PHPExcel_Style_Border::BORDER_THIN
+    )
+  )
+);
+
+$fontall = array(
+    'font'  => array(
+        'size'  => 10,
+        'name'  => 'Arial'
+    ));
+	
+$bold = array(
+    'font'  => array(
+        'bold'  => true
+    ));
+
+$objPHPExcel->setActiveSheetIndex(0)
+->setCellValue('A1', 'FORM PERMINTAAN PEMBAYARAN');
+$objPHPExcel->getActiveSheet()->getDefaultStyle()->applyFromArray($fontall);
+$objPHPExcel->getActiveSheet()->getStyle("A6:F6")->applyFromArray($aligncenter);
+$objPHPExcel->getActiveSheet()->getStyle("A6:C11")->applyFromArray($aligncenter);
+$objPHPExcel->getActiveSheet()->getStyle("A14:F20")->applyFromArray($aligncenter);
+$objPHPExcel->getActiveSheet()->getStyle('A6:F11')->applyFromArray($allborders);
+$objPHPExcel->getActiveSheet()->SetCellValue('A1', 'FORM PERMINTAAN PEMBAYARAN')->getStyle("A1")->applyFromArray($bold);
+$objPHPExcel->getActiveSheet()->SetCellValue('A3', 'Kepada : Bagian Keuangan');
+$objPHPExcel->getActiveSheet()->SetCellValue('A4', 'Mohon disiapkan dana berupa :');
+$objPHPExcel->getActiveSheet()->SetCellValue('E4', 'TRANSFER');
+$objPHPExcel->getActiveSheet()->SetCellValue('A6', 'No')->getColumnDimension('A')->setWidth(5);
+
+$objPHPExcel->getActiveSheet()->SetCellValue('B6', 'Tgl')->getColumnDimension('B')->setWidth(15);
+//$objPHPExcel->getActiveSheet()->SetCellValue('B7', '04-Jan-16');
+$objPHPExcel->getActiveSheet()->SetCellValue('C6', 'Project Code')->getColumnDimension('C')->setWidth(17);
+//$objPHPExcel->getActiveSheet()->SetCellValue('C7', 'Telkomsel');
+$objPHPExcel->getActiveSheet()->SetCellValue('D6', 'Keterangan')->getColumnDimension('D')->setWidth(17);
+//$objPHPExcel->getActiveSheet()->SetCellValue('D7', '5 hari x @25000');
+$objPHPExcel->getActiveSheet()->SetCellValue('E6', 'Jumlah')->getColumnDimension('E')->setWidth(17);
+//$objPHPExcel->getActiveSheet()->SetCellValue('E7', 'Rp. 125000');
+$objPHPExcel->getActiveSheet()->SetCellValue('F6', 'No. Giro / Cek')->getColumnDimension('F')->setWidth(15);
+//$objPHPExcel->getActiveSheet()->SetCellValue('F7', '1234567890');
+
+$value = count($this->sheets);
+	//if ($values < 5) {
+    foreach ((array)$this->sheets as $value) { 
+	$c=0;
+$objPHPExcel->getActiveSheet()->SetCellValue('A7', $c=$c+1);
+$objPHPExcel->getActiveSheet()->SetCellValue('B7', date('j-M-y', strtotime($value['date'])));
+$objPHPExcel->getActiveSheet()->SetCellValue('C7', $this->projectResult[$value['projectID']]['Project'])->getColumnDimension('C')
+                ->setAutoSize(true);;
+IF($value['shift'] == '0'){
+			$subtotal = $value['days'] * $this->projectResult[$value['projectID']]['value'];
+		}else{
+			$days = $value['days'] - $value['shift'];				
+				$h1 = $this->projectsResult[$value['projectID']]['value'];
+				$h1 = $h1 + $this->projectsResult2[$this->projectsResult[$value['projectID']]['Project']]['value'];					
+				$malam = $malam + $h1;
+			$subtotal = ($days * $this->projectResult[$value['projectID']]['value']) + $malam;
+		}
+$objPHPExcel->getActiveSheet()->SetCellValue('D7', $value['days'] . ' hari x @'. $subtotal );
+$objPHPExcel->getActiveSheet()->SetCellValue('E7', $this->projectResult[$value['projectID']]['value']);
+$objPHPExcel->getActiveSheet()->SetCellValue('F7', $subtotal);
+$values=$values+1; } 
+
+$objPHPExcel->getActiveSheet()->SetCellValue('A13', 'Keterangan :');
+$objPHPExcel->getActiveSheet()->SetCellValue('C13', 'Transport Project Millage');
+$objPHPExcel->getActiveSheet()->SetCellValue('A14', 'Mengetahui /')->mergeCells('A14:B14')->getStyle('A14:B20')->applyFromArray($outline);
+$objPHPExcel->getActiveSheet()->SetCellValue('C14', 'Mengetahui /')->getStyle('C14:C20')->applyFromArray($outline);
+$objPHPExcel->getActiveSheet()->SetCellValue('D14', 'Mengetahui /')->getStyle('D14:D20')->applyFromArray($outline);
+$objPHPExcel->getActiveSheet()->SetCellValue('E14', 'Mengetahui /')->getStyle('E14:E20')->applyFromArray($outline);
+$objPHPExcel->getActiveSheet()->SetCellValue('F14', 'Diajukan Oleh,')->getStyle('F14:F20')->applyFromArray($outline);
+$objPHPExcel->getActiveSheet()->SetCellValue('A15', 'Pres. Direktur /')->mergeCells('A15:B15');
+$objPHPExcel->getActiveSheet()->SetCellValue('C15', 'Finance,');
+$objPHPExcel->getActiveSheet()->SetCellValue('D15', 'Direktur,');
+$objPHPExcel->getActiveSheet()->SetCellValue('E15', 'Project Manager,');
+$objPHPExcel->getActiveSheet()->SetCellValue('F15', 'Karyawan,');
+
+$objPHPExcel->getActiveSheet()->SetCellValue('A20', 'Kelvin Go')->mergeCells('A20:B20');
+$objPHPExcel->getActiveSheet()->SetCellValue('C20', 'Maulan');
+$objPHPExcel->getActiveSheet()->SetCellValue('D20', 'Arifa');
+//$objPHPExcel->getActiveSheet()->SetCellValue('E20', 'Nawangsari');
+$objPHPExcel->getActiveSheet()->SetCellValue('F20', $this->employeeclaim[$value['NIK']]['name']);	
+
+// Do your stuff here
+// Add an image to the worksheet
+$objDrawing = new PHPExcel_Worksheet_Drawing();
+$objDrawing->setName('My Image');
+$objDrawing->setDescription('The Image that I am inserting');
+$objDrawing->setPath($_SERVER["DOCUMENT_ROOT"] . '/excel/images/ttd_arifa_1.png');
+$objDrawing->setCoordinates('D16');
+//$objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
+
+$objDrawing->setResizeProportional(false);
+// set width later
+$objDrawing->setheight(80);
+$objDrawing->setwidth(80);
+$objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
+//$objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(100);
+
+
+$writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');  
+
+// This line will force the file to download    
+$writer->save('php://output');
+
+
+?>
